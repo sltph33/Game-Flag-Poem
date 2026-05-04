@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game Flag Poem</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg,#d72638,#ffffff,#1e3a8a,#0b6e4f,#f4c430);
+      color: #111;
+      overflow-x: hidden;
+    }
+
+    /* Flag emoji background */
+    body::before {
+      content: "🏳️‍🌈 🇬🇧 🇯🇵 🇺🇸 🇨🇦 🇫🇷 🇩🇪 🇮🇹 🇧🇷 🇮🇳 🇨🇳 🇿🇦 🏴‍☠️ 🏳️‍⚧️ 🇬🇧 🇯🇵 🇺🇸 🇨🇦 🇫🇷 🇩🇪 🇮🇹 🇧🇷 🇮🇳 🇨🇳 🇿🇦";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      font-size: 3rem;
+      line-height: 4rem;
+      opacity: 1;
+      pointer-events: none;
+      white-space: pre-wrap;
+      z-index: -1;
+    }
+
+    .page {
+      display: none;
+      min-height: 100vh;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 40px;
+    }
+
+    .active {
+      display: flex;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      background: linear-gradient(90deg,#ff0000,#f4c430);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg,#ff0000,#f4c430);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p {
+      max-width: 700px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      color: #0b6e4f;
+      font-weight: 500;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 1rem;
+      background: linear-gradient(90deg,#d72638,#1e3a8a);
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 8px;
+      margin: 5px;
+    }
+
+    textarea {
+      width: 300px;
+      border-radius: 8px;
+      padding: 10px;
+      border: 2px solid #f4c430;
+    }
+
+    #hearts {
+      font-size: 2rem;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- GAME PAGE -->
+<div id="gamePage" class="page active">
+  <h1>Flag Poem: The Flag Game</h1>
+
+  <p style="background: linear-gradient(90deg,#f4c430,#ffffff); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
+    Interpret the flag poem and uncover its hidden meaning.
+  </p>
+
+  <button onclick="goPoem()">Go to Poem Page</button>
+
+  <h2>What does the poem mean?</h2>
+  <textarea id="answer" rows="4"></textarea><br><br>
+  <button onclick="checkAnswer()">Submit Answer</button>
+
+  <p id="score"></p>
+  <div id="hearts">❤️❤️❤️</div>
+</div>
+
+<!-- POEM PAGE -->
+<div id="poemPage" class="page">
+  <h1>The Flag Poem</h1>
+
+  <p>
+    What's that fluttering in the breeze?<br>
+    It's just a piece of cloth<br>
+    that brings a nation to its knees.<br><br>
+
+    What's that unfurling from a pole?<br>
+    It's just a piece of cloth<br>
+    That makes the guts of men grow bold.<br><br>
+
+    What's that rising over the tent?<br>
+    It's just a piece of cloth<br>
+    that dares the coward to relent.<br><br>
+
+    What's that flying across a field?<br>
+    It's just a piece of cloth<br>
+    that will outlive the blood you bleed.<br><br>
+
+    How can I possess such a cloth?<br>
+    Just ask for a flag my friend.<br>
+    Then blind your conscience to the end.
+  </p>
+
+  <button onclick="goGame()">Back</button>
+</div>
+
+<!-- END PAGE -->
+<div id="endPage" class="page">
+  <h1>Game Over</h1>
+  <h2 id="finalScore"></h2>
+  <p id="feedback"></p>
+  <button onclick="restart()">Play Again</button>
+</div>
+
+<!-- SECRET PAGE -->
+<div id="secretPage" class="page">
+  <h1>SECRET WIN</h1>
+</div>
+
+<script>
+let attemptsLeft = 3;
+let scores = [];
+let gameOver = false;
+
+let globalConcept = {
+  symbol:0, power:0, nation:0, consequence:0, emotion:0
+};
+
+function updateHearts(){
+  document.getElementById("hearts").innerHTML =
+    "❤️".repeat(attemptsLeft) + "🤍".repeat(3 - attemptsLeft);
+}
+updateHearts();
+
+function checkAnswer(){
+  if(gameOver) return;
+
+  const text = document.getElementById("answer").value.toLowerCase();
+
+  const concepts = {
+    symbol:["flag","symbol","represents","meaning"],
+    power:["power","control","authority"],
+    nation:["nation","country","identity"],
+    consequence:["result","impact","cause","effect"],
+    emotion:["fear","pride","belief"]
+  };
+
+  let local = {symbol:0,power:0,nation:0,consequence:0,emotion:0};
+
+  for(let c in concepts){
+    for(let w of concepts[c]){
+      if(text.includes(w)){
+        local[c]=1;
+        globalConcept[c]=1;
+      }
+    }
+  }
+
+  let core = Object.values(local).reduce((a,b)=>a+b,0);
+  let score = Math.min(100, core * 20);
+
+  scores.push(score);
+  attemptsLeft--;
+  updateHearts();
+
+  document.getElementById("score").innerText = "Score: " + score;
+  document.getElementById("answer").value = "";
+
+  if(attemptsLeft === 0){
+    gameOver = true;
+
+    let total = scores.reduce((a,b)=>a+b,0);
+
+    let feedback = "";
+    if(globalConcept.power && !globalConcept.consequence)
+      feedback = "You understood power but missed consequence.";
+    else if(globalConcept.symbol && !globalConcept.emotion)
+      feedback = "You saw the symbol but missed emotional meaning.";
+    else if(globalConcept.nation && globalConcept.power)
+      feedback = "You understood nation and control.";
+    else
+      feedback = "You partially understood the poem's meaning.";
+
+    document.getElementById("finalScore").innerText = total + "/300";
+    document.getElementById("feedback").innerText = feedback;
+
+    document.getElementById("gamePage").classList.remove("active");
+    document.getElementById("endPage").classList.add("active");
+  }
+}
+
+function goPoem(){
+  document.getElementById("gamePage").classList.remove("active");
+  document.getElementById("poemPage").classList.add("active");
+}
+
+function goGame(){
+  document.getElementById("poemPage").classList.remove("active");
+  document.getElementById("gamePage").classList.add("active");
+}
+
+function restart(){
+  location.reload();
+}
+</script>
+
+</body>
+</html>
